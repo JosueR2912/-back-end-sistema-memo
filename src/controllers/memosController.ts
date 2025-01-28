@@ -8,7 +8,7 @@ export class MemoController {
     @Post()
     async create(@Body() body: Memos): Promise<any> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
-        let command: string = `INSERT INTO memos(codigo_memo, de, copia_para, asunto, contenido, fecha, fromDepartamento, toDepartamento, status, status_delete, id_user) VALUES ('${body.codigo_memo}', '${body.de}', ${body.copia_para || 0}, '${body.asunto}', '${body.contenido}', '${body.fecha}', ${body.fromDepartamento}, ${body.toDepartamento}, '${body.status}', '${body.status_delete}', ${body.id_user || 0})`;
+        let command: string = `INSERT INTO memos(codigo_memo, de, copia_para, asunto, contenido, fecha, fromDepartamento, toDepartamento, status, status_delete, id_user) VALUES ('${body.codigo_memo}', '${body.de}', ${body.copia_para || 0}, '${body.asunto}', '${body.contenido}', STR_TO_DATE('${body.fecha}', '%Y-%m-%dT%H:%i:%s.%fZ'), ${body.fromDepartamento}, ${body.toDepartamento}, '${body.status}', '${body.status_delete}', ${body.id_user || 0})`;
         
         const output: any = {};
         await SqlHelper.run(connection, command, output);

@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Query, Delete } from '@nestjs/common';
+import { promises } from 'dns';
 import { DB_DATABASE, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME } from 'src/common/constantes';
 import { SqlHelper } from 'src/common/sqlHelper.entity';
 import { Departamento } from 'src/models/departamentos';
@@ -8,7 +9,7 @@ export class DepartamentoController {
     @Post()
     async create(@Body() body: Departamento): Promise<any> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
-        let command: string = `INSERT INTO departamentos(nombre_departamento, codigo_departamento, status) VALUES ('${body.nombre_departamento}', '${body.codigo_departamento}','${body.status || 0}')`;
+        let command: string = `INSERT INTO departamentos(nombre_departamento, codigo_departamento, status) VALUES ('${body.nombre_departamento}', '${body.codigo_departamento}','${body.status || "activo"}')`;
         
         const output: any = {};
         await SqlHelper.run(connection, command, output);
@@ -53,8 +54,7 @@ export class DepartamentoController {
         }
 
         return output;
-    }
-    
+    }   
     @Get()
     async findAll(@Query('pageNumber') pageNumber, @Query('pageSize') pageSize): Promise<any> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
@@ -73,11 +73,12 @@ export class DepartamentoController {
 
         return {items: items.response, count: count.response[0]['COUNT(*)']};
     }
+    
 
     @Post('logic-delete')
     async logicDelete(@Body() body: Departamento): Promise<string> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
-        let command: string = `UPDATE departamentos SET status= 2 WHERE id=${body.id}`;
+        let command: string = `UPDATE departamentos SET status="inactivo" WHERE id=${body.id}`;
 
         const output: any = {};
         await SqlHelper.run(connection, command, output);
@@ -90,8 +91,6 @@ export class DepartamentoController {
 
         return 'ok';
     }
-
-
 
     @Post('delete')
     async delete(@Body() body: any): Promise<string> {
