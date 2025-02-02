@@ -2,7 +2,7 @@ export class Memos {
     id: number;
     codigo_memo: string;
     de: string;
-    copia_para!: number;
+    copia_para!: string;
     asunto:string;
     contenido:string;
     fecha:Date;
