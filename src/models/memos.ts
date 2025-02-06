@@ -8,6 +8,7 @@ export class Memos {
     fecha:Date;
     fromDepartamento: number;
     toDepartamento: number;
+    redactadoPor: string;
     status: string;
     status_delete: string;
     id_user: number;

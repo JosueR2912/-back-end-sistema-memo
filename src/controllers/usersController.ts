@@ -28,7 +28,7 @@ export class UsersController {
     @Post('edit')
     async edit(@Body() body: Users): Promise<string> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
-        let command: string = `UPDATE usuarios SET password=md5('${body.password}'), username='${body.username}', nombre='${body.nombre}',seg_nombre='${body.seg_nombre}', apellido='${body.apellido}',seg_apellido='${body.seg_apellido}',correo='${body.correo}',grado_academico='${body.grado_academico}' ,cargo='${body.id_cargo || ''}', status='${body. status || '1'}', id_role='${body.id_role}, id_depart='${body.id_depart || ''} ', id_firma='${body.id_firma || ''} ' WHERE id=${body.id}`;
+        let command: string = `UPDATE usuarios SET password=md5('${body.password}'), username='${body.username}', nombre='${body.nombre}',seg_nombre='${body.seg_nombre}', apellido='${body.apellido}',seg_apellido='${body.seg_apellido}',correo='${body.correo}',grado_academico='${body.grado_academico}' ,id_cargo='${body.id_cargo}', status='${body. status || 1}', id_role=${body.id_role}, id_depart='${body.id_depart}', id_firma='${body.id_firma || ''}' WHERE id=${body.id}`;
 
         const output: any = {};
         await SqlHelper.run(connection, command, output);
