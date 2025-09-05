@@ -2,6 +2,10 @@ import { Body, Controller, Get, Post, Query, Delete } from '@nestjs/common';
 import { DB_DATABASE, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME } from 'src/common/constantes';
 import { SqlHelper } from 'src/common/sqlHelper.entity';
 import { Firma } from 'src/models/firmas';
+import {  UseInterceptors, UploadedFile, HttpException, HttpStatus } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('firma')
 export class FirmaController {
@@ -74,5 +78,38 @@ export class FirmaController {
 
         return {items: items.response, count: count.response[0]['COUNT(*)']};
     }
+    @Post('file')
+  @UseInterceptors(FileInterceptor('myFile[]', {
+    storage: diskStorage({
+      destination: './uploads/firmas', // La carpeta donde se guardarán los archivos
+      filename: (req, file, callback) => {
+        // Genera un nombre de archivo único para evitar colisiones
+        // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        // const ext = extname(file.originalname);
+        // callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+        callback(null, file.originalname); // Mantiene el nombre original del archivo
+      },
+    }),
+    fileFilter: (req, file, callback) => {
+      // Opcional: valida el tipo de archivo
+      if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+        return callback(new HttpException('Solo se permiten archivos de imagen!', HttpStatus.BAD_REQUEST), false);
+      }
+      callback(null, true);
+    }
+  }))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new HttpException('No se ha subido ningún archivo.', HttpStatus.BAD_REQUEST);
+    }
+    
+    // Aquí puedes guardar la información del archivo en una base de datos si lo necesitas
+    console.log(file);
+
+    return {
+      message: 'Archivo subido correctamente!',
+      filename: file.filename,
+    };
+  }
 
 }

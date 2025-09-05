@@ -10,7 +10,7 @@ export class UsersController {
     async create(@Body() body: Users): Promise<any> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
     
-        let command: string = `INSERT INTO usuarios(username, password, nombre, seg_nombre, apellido, seg_apellido, correo,grado_academico,  status, id_role, id_depart, id_firma, id_cargo) VALUES ('${body.username}', md5('${body.password}'), '${body.nombre}', '${body.seg_nombre}', '${body.apellido}', '${body.seg_apellido}', '${body.correo}', '${body.grado_academico}', '${body.status || 1}', '${body.id_role || 2}', '${body.id_depart || 0}', '${body.id_firma || 0}', '${body.id_cargo || 0}')`;
+        let command: string = `INSERT INTO usuarios(username, password, nombre, seg_nombre, apellido, seg_apellido, correo,grado_academico, providencia, status, id_role, id_depart, id_firma, id_cargo) VALUES ('${body.username}', '${body.password}', '${body.nombre}', '${body.seg_nombre}', '${body.apellido}', '${body.seg_apellido}', '${body.correo}', '${body.grado_academico}','${body.providencia}' , '${body.status || 1}', '${body.id_role || 2}', '${body.id_depart || 0}', '${body.id_firma || 0}', '${body.id_cargo || 0}')`;
     
         const output: any = {};
         await SqlHelper.run(connection, command, output);
@@ -28,7 +28,7 @@ export class UsersController {
     @Post('edit')
     async edit(@Body() body: Users): Promise<string> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
-        let command: string = `UPDATE usuarios SET password=md5('${body.password}'), username='${body.username}', nombre='${body.nombre}',seg_nombre='${body.seg_nombre}', apellido='${body.apellido}',seg_apellido='${body.seg_apellido}',correo='${body.correo}',grado_academico='${body.grado_academico}' ,id_cargo='${body.id_cargo}', status='${body. status || 1}', id_role=${body.id_role}, id_depart='${body.id_depart}', id_firma='${body.id_firma || ''}' WHERE id=${body.id}`;
+        let command: string = `UPDATE usuarios SET password='${body.password}', username='${body.username}', nombre='${body.nombre}',seg_nombre='${body.seg_nombre}', apellido='${body.apellido}',seg_apellido='${body.seg_apellido}',correo='${body.correo}',grado_academico='${body.grado_academico}',providencia='${body.providencia}' ,id_cargo='${body.id_cargo}', status='${body. status || 1}', id_role=${body.id_role}, id_depart='${body.id_depart}', id_firma='${body.id_firma || ''}' WHERE id=${body.id}`;
 
         const output: any = {};
         await SqlHelper.run(connection, command, output);
@@ -64,7 +64,7 @@ export class UsersController {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
     
         const output: any = {};
-        await SqlHelper.run(connection, `SELECT *, id as id FROM usuarios WHERE username='${body.username || ''}' AND password=md5('${body.password}')`, output);
+        await SqlHelper.run(connection, `SELECT *, id as id FROM usuarios WHERE username='${body.username || ''}' AND password='${body.password}'`, output);
     
         if (output?.response?.length) {
             // Si encuentra el usuario, determina el tipo basado en el campo role
@@ -97,6 +97,36 @@ export class UsersController {
         }
 
         return {items: items.response, count: count.response[0]['COUNT(*)']};
+    }
+    @Get('view/allusers')
+    async findAllUserts(@Query('pageNumber') pageNumber, @Query('pageSize') pageSize): Promise<any> {
+        let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
+        const items:any = {};
+        await SqlHelper.run(connection, `SELECT
+	a.id as id,
+    a.nombre as nombre,
+    a.apellido as apellido,
+    a.username as username,
+    b.nombre AS cargo,
+    c.nombre_departamento AS departamento,
+    d.role_name AS role,
+    a.status as status
+    FROM
+    usuarios as a
+        INNER JOIN cargos AS b
+            ON
+    a.id_cargo = b.id
+        INNER JOIN departamentos AS c
+        ON
+    a.id_depart = c.id
+        INNER JOIN roles AS d
+        ON
+    a.id_role = d.id`, items);
+    connection.end();
+    if (items === null) {
+        return 'Query could not be executed';
+    }
+    return items.response;
     }
     
     @Post('delete')

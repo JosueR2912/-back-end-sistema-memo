@@ -9,9 +9,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CargoController } from './controllers/cargosController';
 import { PdfController } from './controllers/pdfsController';
 import { MemoController } from './controllers/memosController';
+import { MulterModule } from '@nestjs/platform-express';
+
 
 @Module({
-  imports: [ScheduleModule.forRoot()],
+  imports: [ScheduleModule.forRoot(),MulterModule.register({ dest: './uploads' })],
   controllers: [AppController,MemoController, UsersController, DepartamentoController, RoleController, FirmaController,CargoController, PdfController],
   providers: [AppService],
 })

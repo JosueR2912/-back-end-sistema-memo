@@ -26,7 +26,7 @@ export class DepartamentoController {
     @Post('edit')
     async edit(@Body() body: Departamento): Promise<string> {
         let connection = await SqlHelper.connect(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_PORT, DB_DATABASE);
-        let command: string = `UPDATE departamentos SET nombre_departamento='${body.nombre_departamento}', codigo_departamento='${body.codigo_departamento}', status='${body.status}'} WHERE id='${body.id}'`;
+        let command: string = `UPDATE departamentos SET nombre_departamento='${body.nombre_departamento}', codigo_departamento='${body.codigo_departamento}', status='${body.status}' WHERE id=${body.id}`;
         console.log(command);
         const output: any = {};
         await SqlHelper.run(connection, command, output);

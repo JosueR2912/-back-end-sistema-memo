@@ -8,6 +8,7 @@ export class Users {
     public password: string;
     public correo: string;
     public grado_academico: string;
+    public providencia: string;
     public id_cargo: string;
     public id_role: number;
     public status: number;
